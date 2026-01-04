@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حضور فريق الجمال</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* ألوان الهوية الجديدة المستوحاة من الشعار */
+            --primary-gradient: linear-gradient(135deg, #00c6ff, #9d00ff, #ff007c);
+            --accent-pink: #ff007c;
+            --accent-purple: #9d00ff;
+            --accent-blue: #00c6ff;
+            
+            --bg-color: #f4f7f6;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-dark: #333333;
+            --text-light: #777777;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(157, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(255, 0, 124, 0.1) 0%, transparent 50%);
+            overflow-x: hidden;
+        }
+
+        /* خلفية جمالية */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.4;
+        }
+        body::before { background: var(--accent-blue); top: -100px; left: -100px; }
+        body::after { background: var(--accent-pink); bottom: -100px; right: -100px; }
+
+        .app-container {
+            width: 95%;
+            max-width: 1100px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 30px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .brand-logo {
+            display: block;
+            max-width: 120px;
+            margin: 0 auto 20px auto;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
+        }
+
+        /* شاشة التحميل */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .spinner {
+            border: 4px solid rgba(0,0,0,0.05);
+            border-top: 4px solid var(--accent-purple);
+            border-left: 4px solid var(--accent-pink);
+            border-radius: 50%;
+            width: 60px; height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* النصوص */
+        h1, h2, h3, h4 { color: var(--text-dark); font-weight: 700; }
+        
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        /* حقول الإدخال */
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 50px;
+            border: 2px solid #eee;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-dark);
+            outline: none;
+            text-align: center;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+
+        input:focus { 
+            border-color: var(--accent-purple);
+            background: #fff;
+            box-shadow: 0 5px 20px rgba(157, 0, 255, 0.15);
+        }
+
+        /* الأزرار */
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 50px;
+            background: var(--primary-gradient);
+            background-size: 200% auto;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.5s;
+            box-shadow: 0 10px 20px rgba(157, 0, 255, 0.2);
+        }
+
+        button:hover { 
+            background-position: right center;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(157, 0, 255, 0.3);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .check-in-btn { 
+            background: linear-gradient(45deg, #2ecc71, #00c6ff); 
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.2);
+        }
+        .check-out-btn { 
+            background: linear-gradient(45deg, #ff007c, #e74c3c);
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.2);
+        }
+
+        /* الجداول */
+        .table-container {
+            background: #fff;
+            border-radius: 20px;
+            padding: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            overflow-x: auto;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .data-table th {
+            padding: 15px;
+            background: rgba(157, 0, 255, 0.05);
+            color: var(--accent-purple);
+            font-weight: 700;
+            border-bottom: 2px solid rgba(157, 0, 255, 0.1);
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            color: var(--text-dark);
+        }
+        
+        .data-table tr:hover td { background: rgba(0,0,0,0.01); }
+
+        .location-link { 
+            color: var(--accent-blue); 
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        /* الأقسام */
+        .dashboard { display: none; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .login-screen { max-width: 450px; margin: 0 auto; text-align: center; padding: 20px 0; }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(0,0,0,0.05);
+            padding-bottom: 15px;
+        }
+
+        .logout-btn {
+            width: auto; margin: 0; padding: 8px 25px;
+            font-size: 0.9rem;
+            background: linear-gradient(45deg, #e74c3c, #ff007c);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+        }
+
+        .status-card {
+            text-align: center;
+            margin-bottom: 35px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .gradient-icon {
+            font-size: 2rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        /* التنبيهات */
+        .alert {
+            position: fixed;
+            top: 30px; left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 50px;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: white;
+        }
+
+        /* لوحة المدير */
+        .admin-forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .admin-card {
+            background: #fff; padding: 25px; border-radius: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .delete-btn {
+            width: auto; margin:0; padding: 6px 15px; 
+            background: linear-gradient(45deg, #ff007c, #e74c3c);
+            font-size: 0.85rem; border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <h3 style="color: var(--accent-purple);">جاري الاتصال بنظام الجمال...</h3>
+    </div>
+
+    <div id="alertBox" class="alert"></div>
+
+    <div class="app-container">
+        
+        <div id="loginSection" class="login-screen">
+            <img src="https://i.ibb.co/4Zdb1gm8/Untitled.png" alt="شعار الشركة" class="brand-logo">
+            <h1 style="margin-bottom: 10px;" class="gradient-text">أهلاً بكِ</h1>
+            <p style="color: var(--text-light); margin-bottom: 30px;">سجلي دخولك لبدء يومك المتألق</p>
+            
+            <div style="position: relative;">
+                <i class="fas fa-user gradient-icon" style="position: absolute; top: 22px; right: 15px; font-size: 1.2rem;"></i>
+                <input type="text" id="username" placeholder="اسم المستخدم" style="padding-right: 45px;">
+            </div>
+            <div style="position: relative;">
+                <i class="fas fa-lock gradient-icon" style="position: absolute; top: 22px; right: 15px; font-size: 1.2rem;"></i>
+                <input type="password" id="password" placeholder="كلمة المرور" style="padding-right: 45px;">
+            </div>
+            
+            <button onclick="login()">تسجيل الدخول <i class="fas fa-arrow-left" style="margin-right: 10px;"></i></button>
+        </div>
+
+        <div id="employeeDashboard" class="dashboard">
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="https://i.ibb.co/4Zdb1gm8/Untitled.png" alt="شعار" style="width: 50px;">
+                    <h3>صباح الجمال، <span id="empName" class="gradient-text"></span></h3>
+                </div>
+                <button onclick="logout()" class="logout-btn">خروج <i class="fas fa-sign-out-alt"></i></button>
+            </div>
+            
+            <div class="status-card">
+                <i class="fas fa-spa gradient-icon" style="font-size: 3rem;"></i>
+                <h3 id="currentStatus" style="margin-top: 15px;">جاري التحقق من حالتك...</h3>
+                <h1 id="clock" class="gradient-text" style="font-size: 3rem; margin: 20px 0;">00:00:00</h1>
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                    <button id="btnCheckIn" class="check-in-btn" onclick="performAction('checkIn')"><i class="fas fa-check"></i> بدء الدوام</button>
+                    <button id="btnCheckOut" class="check-out-btn" onclick="performAction('checkOut')"><i class="fas fa-times"></i> انتهاء الدوام</button>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 15px; color: var(--accent-purple);"><i class="fas fa-history"></i> سجلك الأنيق لهذا الشهر</h3>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>التاريخ</th><th>وقت الحضور</th><th>موقع الحضور</th><th>وقت الانصراف</th><th>موقع الانصراف</th></tr></thead>
+                    <tbody id="myLogsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="adminDashboard" class="dashboard">
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="https://i.ibb.co/4Zdb1gm8/Untitled.png" alt="شعار" style="width: 50px;">
+                    <h3>لوحة التحكم الإدارية</h3>
+                </div>
+                <button onclick="logout()" class="logout-btn">خروج</button>
+            </div>
+
+            <div class="admin-forms-grid">
+                <div class="admin-card">
+                    <h4><i class="fas fa-user-plus gradient-icon" style="font-size: 1.2rem;"></i> إضافة عضو جديد</h4>
+                    <input type="text" id="newName" placeholder="الاسم الكامل">
+                    <input type="text" id="newUser" placeholder="اسم المستخدم">
+                    <input type="text" id="newPass" placeholder="كلمة المرور">
+                    <button onclick="addEmployee()" style="background: var(--accent-purple);">إضافة <i class="fas fa-plus"></i></button>
+                </div>
+
+                <div class="admin-card">
+                    <h4><i class="fas fa-users gradient-icon" style="font-size: 1.2rem;"></i> فريقنا الرائع</h4>
+                    <div id="usersList" style="max-height: 250px; overflow-y: auto;"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; margin-bottom: 15px;">
+                <h3 style="color: var(--accent-blue);"><i class="fas fa-clipboard-list"></i> السجل العام</h3>
+                <button onclick="fetchData()" style="width: auto; padding: 10px 25px; background: var(--accent-blue);"><i class="fas fa-sync-alt"></i> تحديث</button>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead><tr><th>الموظفة</th><th>التاريخ</th><th>حضور</th><th>موقع</th><th>انصراف</th><th>موقع</th></tr></thead>
+                    <tbody id="allLogsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // رابط الاسكربت الخاص بك
+        const API_URL = "https://script.google.com/macros/s/AKfycbx9bwDjqglfUrAEd15iQxiAA2CqoA3r8IJA3cw7tXhKOuAIjJFy90pVN7m6wDvflP7Y/exec";
+
+        let currentUser = null;
+
+        // دالة الاتصال بالسيرفر
+        async function apiCall(data) {
+            document.getElementById('loading').style.display = 'flex';
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                document.getElementById('loading').style.display = 'none';
+                return result;
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                showAlert('فشل الاتصال بالسيرفر، تأكد من الإنترنت', 'error');
+                console.error(error);
+                return null;
+            }
+        }
+
+        // --- تسجيل الدخول ---
+        async function login() {
+            const userIn = document.getElementById('username').value;
+            const passIn = document.getElementById('password').value;
+
+            if(!userIn || !passIn) return showAlert('يرجى إدخال البيانات', 'error');
+
+            const res = await apiCall({ action: "login", username: userIn, password: passIn });
+
+            if (res && res.success) {
+                currentUser = res.user;
+                localStorage.setItem('beauty_team_user', JSON.stringify(currentUser));
+                initApp();
+            } else {
+                showAlert('اسم المستخدم أو كلمة المرور خطأ', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('beauty_team_user');
+            location.reload();
+        }
+
+        // --- تهيئة التطبيق ---
+        function initApp() {
+            document.getElementById('loginSection').style.display = 'none';
+            if (currentUser.isAdmin) {
+                document.getElementById('adminDashboard').style.display = 'block';
+                fetchData();
+            } else {
+                document.getElementById('employeeDashboard').style.display = 'block';
+                document.getElementById('empName').innerText = currentUser.name;
+                fetchData();
+            }
+        }
+
+        // --- جلب البيانات ---
+        async function fetchData() {
+            if (currentUser.isAdmin) {
+                try {
+                    document.getElementById('loading').style.display = 'flex';
+                    const logsRes = await fetch(`${API_URL}?action=getLogs`);
+                    const logs = await logsRes.json();
+                    
+                    const usersRes = await fetch(`${API_URL}?action=getUsers`);
+                    const users = await usersRes.json();
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    renderAdminLogs(logs);
+                    renderAdminUsers(users);
+                } catch(e) {
+                    document.getElementById('loading').style.display = 'none';
+                    console.log(e);
+                }
+            } else {
+                document.getElementById('loading').style.display = 'flex';
+                const logsRes = await fetch(`${API_URL}?action=getLogs`);
+                const logs = await logsRes.json();
+                document.getElementById('loading').style.display = 'none';
+
+                const myLogs = logs.filter(l => l.userId == currentUser.id);
+                renderMyLogs(myLogs);
+                updateEmployeeStatus(myLogs);
+            }
+        }
+
+        // --- منطق الموظف ---
+        function updateEmployeeStatus(logs) {
+            const lastLog = logs[logs.length - 1];
+            const btnIn = document.getElementById('btnCheckIn');
+            const btnOut = document.getElementById('btnCheckOut');
+            const statusText = document.getElementById('currentStatus');
+
+            if (lastLog && lastLog.checkOut == "-") {
+                statusText.innerHTML = 'حالتك الآن: <span style="color:#2ecc71; font-weight:bold;">متواجدة في العمل ✨</span>';
+                btnIn.disabled = true;
+                btnOut.disabled = false;
+            } else {
+                statusText.innerHTML = 'حالتك الآن: <span style="color:#777;">خارج أوقات العمل</span>';
+                btnIn.disabled = false;
+                btnOut.disabled = true;
+            }
+        }
+
+        function getLocation(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const link = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+                        callback(link);
+                    },
+                    (error) => {
+                        showAlert('يرجى تفعيل الموقع لتسجيل الحضور', 'error');
+                    }
+                );
+            } else {
+                showAlert('المتصفح لا يدعم الموقع', 'error');
+            }
+        }
+
+        function performAction(type) {
+            getLocation(async (loc) => {
+                const res = await apiCall({
+                    action: type,
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    location: loc
+                });
+
+                if (res && res.success) {
+                    showAlert(type == 'checkIn' ? 'تم تسجيل حضورك بنجاح 🌸' : 'تم تسجيل انصرافك، يوم سعيد! 💖', 'success');
+                    fetchData();
+                } else {
+                    showAlert(res.message || 'حدث خطأ', 'error');
+                }
+            });
+        }
+
+        // --- منطق المدير ---
+        async function addEmployee() {
+            const name = document.getElementById('newName').value;
+            const user = document.getElementById('newUser').value;
+            const pass = document.getElementById('newPass').value;
+
+            if(!name || !user || !pass) return showAlert('الرجاء إكمال البيانات', 'error');
+
+            const res = await apiCall({ action: "addUser", name, username: user, password: pass });
+            if(res && res.success) {
+                showAlert('تمت إضافة الموظفة 🎉', 'success');
+                fetchData();
+                document.getElementById('newName').value = '';
+                document.getElementById('newUser').value = '';
+                document.getElementById('newPass').value = '';
+            }
+        }
+
+        async function deleteUser(id) {
+            if(confirm('حذف هذا العضو؟')) {
+                const res = await apiCall({ action: "deleteUser", id: id });
+                if(res.success) fetchData();
+            }
+        }
+
+        // --- دوال العرض ---
+        function renderMyLogs(logs) {
+            const tbody = document.getElementById('myLogsTable');
+            tbody.innerHTML = logs.slice().reverse().map(l => `
+                <tr>
+                    <td><span style="color:#9d00ff; font-weight:600">${l.date}</span></td>
+                    <td>${l.checkIn}</td>
+                    <td><a href="${l.checkInLoc}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> موقع</a></td>
+                    <td>${l.checkOut}</td>
+                    <td>${l.checkOutLoc !== '-' ? `<a href="${l.checkOutLoc}" target="_blank" class="location-link"><i class="fas fa-map-marker-alt"></i> موقع</a>` : '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminLogs(logs) {
+            const tbody = document.getElementById('allLogsTable');
+            tbody.innerHTML = logs.slice().reverse().map(l => `
+                <tr>
+                    <td style="font-weight:600; color:#00c6ff">${l.userName}</td>
+                    <td>${l.date}</td>
+                    <td>${l.checkIn}</td>
+                    <td><a href="${l.checkInLoc}" target="_blank" class="location-link"><i class="fas fa-map-pin"></i></a></td>
+                    <td>${l.checkOut}</td>
+                    <td>${l.checkOutLoc !== '-' ? `<a href="${l.checkOutLoc}" target="_blank" class="location-link"><i class="fas fa-map-pin"></i></a>` : '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminUsers(users) {
+            const list = document.getElementById('usersList');
+            list.innerHTML = users.map(u => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; margin-bottom: 5px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <i class="fas fa-user-circle gradient-icon" style="font-size:1.5rem"></i>
+                        <span>${u.name} <small style="color:#777;">(${u.username})</small></span>
+                    </div>
+                    <button onclick="deleteUser(${u.id})" class="delete-btn"><i class="fas fa-trash-alt"></i> حذف</button>
+                </div>
+            `).join('');
+        }
+
+        // --- التنبيهات (تم الإصلاح) ---
+        function showAlert(msg, type) {
+            const box = document.getElementById('alertBox');
+            box.innerText = msg;
+            box.style.display = 'block';
+            
+            if(type === 'success') {
+                 box.style.background = 'linear-gradient(45deg, #2ecc71, #00c6ff)';
+            } else {
+                 box.style.background = 'linear-gradient(45deg, #ff007c, #e74c3c)';
+            }
+            setTimeout(() => { box.style.display = 'none'; }, 3500);
+        }
+
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('ar-EG');
+        }, 1000);
+
+        const savedSession = localStorage.getItem('beauty_team_user');
+        if(savedSession) {
+            currentUser = JSON.parse(savedSession);
+            initApp();
+        }
+    </script>
+</body>
+</html>

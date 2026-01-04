@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blanche - People Managment</title>
+    <title>Blanche - People Management</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,64 +34,82 @@
         .brand-logo { display: block; max-width: 120px; margin: 0 auto 20px auto; }
         .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 50px; border: 1px solid #ddd; text-align: center; }
+        h1, h2, h3 { font-weight: 700; color: var(--text-dark); }
+
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 50px; border: 1px solid #ddd; text-align: center; font-size: 1rem; }
         button {
             width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 50px;
             background: var(--primary-gradient); background-size: 200%; color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s;
+            font-size: 1rem;
         }
         button:hover { background-position: right; transform: translateY(-2px); }
         button:disabled { background: #ccc; cursor: not-allowed; }
 
         .check-in-btn { background: linear-gradient(45deg, #2ecc71, #00c6ff); }
         .check-out-btn { background: linear-gradient(45deg, #ff007c, #e74c3c); }
-        .export-btn-excel { background: #27ae60; width: auto; display: inline-block; padding: 8px 20px; font-size: 0.9rem; }
+        
+        .export-btn-excel { background: #27ae60; width: auto; display: inline-block; padding: 8px 20px; font-size: 0.9rem; margin-left: 5px;}
         .export-btn-pdf { background: #e74c3c; width: auto; display: inline-block; padding: 8px 20px; font-size: 0.9rem; }
+        .delete-btn { width: auto; padding: 5px 15px; background: #e74c3c; font-size: 0.8rem; margin: 0;}
 
+        /* تنسيق الجداول: العناوين عربية، المحتوى إنجليزي */
         .table-container { margin-top: 20px; overflow-x: auto; background: #fff; border-radius: 15px; padding: 10px; border: 1px solid #eee; }
         .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        .data-table th { padding: 12px; background: #fdfdfd; color: var(--accent-purple); font-weight: bold; border-bottom: 2px solid #eee; }
-        .data-table td { padding: 10px; text-align: center; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+        .data-table th { padding: 12px; background: #fdfdfd; color: var(--accent-purple); font-weight: bold; border-bottom: 2px solid #eee; text-align: center; }
+        
+        /* هنا السحر: نجبر خلايا الجدول أن تكون من اليسار لليمين لضبط الأرقام الإنجليزية */
+        .data-table td { 
+            padding: 10px; 
+            text-align: center; 
+            border-bottom: 1px solid #f0f0f0; 
+            font-size: 0.95rem; 
+            direction: ltr; /* مهم جداً: يجعل الأرقام الإنجليزية تظهر بشكل صحيح */
+            font-family: monospace, 'Cairo'; /* خط مناسب للأرقام */
+        }
         
         .dashboard { display: none; }
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
         .spinner { border: 4px solid #eee; border-top: 4px solid var(--accent-purple); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         .alert { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 50px; color: white; z-index: 10000; display: none; font-weight: bold; }
-        .status-badge { display: inline-block; padding: 5px 15px; border-radius: 20px; margin: 10px 0; font-weight: bold; background: #eee; color: #555; }
+        .status-badge { display: inline-block; padding: 8px 20px; border-radius: 20px; margin: 10px 0; font-weight: bold; background: #eee; color: #555; }
     </style>
 </head>
 <body>
 
-    <div id="loading" class="loading-overlay"><div class="spinner"></div><h3>جاري التحميل...</h3></div>
+    <div id="loading" class="loading-overlay"><div class="spinner"></div><h3>لحظات من فضلك...</h3></div>
     <div id="alertBox" class="alert"></div>
 
     <div class="app-container">
         
         <div id="loginSection" style="max-width: 400px; margin: 0 auto; text-align: center;">
             <img src="https://i.ibb.co/4Zdb1gm8/Untitled.png" alt="Logo" class="brand-logo">
-            <h1 class="gradient-text" style="margin-bottom: 20px;">أهلاً بكِ</h1>
+            <h1 class="gradient-text" style="margin-bottom: 10px;">أهلاً بكِ في عالم الجمال</h1>
+            <p style="color:#777; margin-bottom: 20px;">سجل دخولك لبدء يوم مشرق</p>
             <input type="text" id="username" placeholder="اسم المستخدم">
             <input type="password" id="password" placeholder="كلمة المرور">
-            <button onclick="login()">دخول</button>
+            <button onclick="login()">تسجيل الدخول</button>
         </div>
 
         <div id="employeeDashboard" class="dashboard">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>أهلاً، <span id="empName" style="color:var(--accent-purple)"></span> 🌸</h3>
+                <h3>صباح الجمال، <span id="empName" style="color:var(--accent-purple)"></span> 🌸</h3>
                 <button onclick="logout()" style="width:auto; padding:8px 20px; background:#333; font-size:0.8rem">خروج</button>
             </div>
             
-            <div style="text-align:center; background:#fff; padding:20px; margin:20px 0; border-radius:20px; box-shadow:0 5px 20px rgba(0,0,0,0.03);">
+            <div style="text-align:center; background:#fff; padding:30px; margin:20px 0; border-radius:20px; box-shadow:0 5px 20px rgba(0,0,0,0.03);">
                 <div id="statusBadge" class="status-badge">جاري التحميل...</div>
-                <h1 id="clock" style="font-size:2.5rem; margin:10px 0; font-family:monospace; color:#333">00:00:00</h1>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <button id="btnCheckIn" class="check-in-btn" onclick="performAction('checkIn')">بدء الدوام</button>
-                    <button id="btnCheckOut" class="check-out-btn" onclick="performAction('checkOut')">انهاء الدوام</button>
+                <h1 id="clock" style="font-size:2.5rem; margin:15px 0; font-family:monospace; color:#333; direction:ltr;">00:00:00 AM</h1>
+                <p style="color:#777; margin-bottom: 15px;">نتمنى لك يوماً مليئاً بالإنجازات ✨</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                    <button id="btnCheckIn" class="check-in-btn" onclick="performAction('checkIn')">تسجيل حضور</button>
+                    <button id="btnCheckOut" class="check-out-btn" onclick="performAction('checkOut')">تسجيل انصراف</button>
                 </div>
             </div>
 
+            <h3 style="margin-bottom:10px; color:var(--accent-purple)">سجلك الشخصي</h3>
             <div class="table-container">
                 <table class="data-table">
-                    <thead><tr><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>مدة العمل</th></tr></thead>
+                    <thead><tr><th>التاريخ</th><th>وقت الحضور</th><th>وقت الانصراف</th><th>مدة العمل</th></tr></thead>
                     <tbody id="myLogsTable"></tbody>
                 </table>
             </div>
@@ -104,20 +122,25 @@
             </div>
 
             <div style="background:#fff; padding:15px; border-radius:20px; margin:15px 0;">
-                <h4 style="margin-bottom:10px; color:var(--accent-purple)">إضافة موظفة</h4>
+                <h4 style="margin-bottom:10px; color:var(--accent-purple)">إضافة موظفة جديدة</h4>
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="newName" placeholder="الاسم">
-                    <input type="text" id="newUser" placeholder="يوزر">
-                    <input type="text" id="newPass" placeholder="باسورد">
+                    <input type="text" id="newName" placeholder="الاسم الكامل">
+                    <input type="text" id="newUser" placeholder="اسم المستخدم">
+                    <input type="text" id="newPass" placeholder="كلمة المرور">
                     <button onclick="addEmployee()" style="width:100px; margin:10px 0;">إضافة</button>
                 </div>
             </div>
 
+            <div style="background:#fff; padding:15px; border-radius:20px; margin:15px 0;">
+                <h4 style="margin-bottom:10px; color:var(--accent-purple)">قائمة الموظفين</h4>
+                <div id="usersList" style="max-height: 150px; overflow-y: auto;"></div>
+            </div>
+
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <button onclick="fetchData()" style="width:auto; background:var(--accent-blue)">تحديث الجدول</button>
+                <button onclick="fetchData()" style="width:auto; background:var(--accent-blue)">تحديث البيانات</button>
                 <div>
-                    <button onclick="exportToExcel()" class="export-btn-excel"><i class="fas fa-file-excel"></i> تنزيل Excel</button>
-                    <button onclick="exportToPDF()" class="export-btn-pdf"><i class="fas fa-file-pdf"></i> تنزيل PDF</button>
+                    <button onclick="exportToExcel()" class="export-btn-excel"><i class="fas fa-file-excel"></i> ملف Excel</button>
+                    <button onclick="exportToPDF()" class="export-btn-pdf"><i class="fas fa-file-pdf"></i> ملف PDF</button>
                 </div>
             </div>
 
@@ -128,7 +151,7 @@
                     <p id="reportDate"></p>
                 </div>
                 <table class="data-table">
-                    <thead><tr><th>الموظفة</th><th>التاريخ</th><th>حضور</th><th>موقع</th><th>انصراف</th><th>موقع</th><th>ساعات العمل</th></tr></thead>
+                    <thead><tr><th>الموظفة</th><th>التاريخ</th><th>وقت الحضور</th><th>الموقع</th><th>وقت الانصراف</th><th>الموقع</th><th>ساعات العمل</th></tr></thead>
                     <tbody id="allLogsTable"></tbody>
                 </table>
             </div>
@@ -137,12 +160,12 @@
 
     <script>
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // تم تحديث الرابط الجديد هنا
-        const API_URL = "https://script.google.com/macros/s/AKfycbyXQZiFSQNPNdoEzf083V1OU893c8-09XGHupFQ98TIFtuybpzS-v0AWTTRxOaLMrsq/exec"; 
+        // ضع الرابط الجديد الخاص بك هنا
+        const API_URL = "https://script.google.com/macros/s/AKfycbwXeHT2kqeVUSuUXdrX23YwzF-zCsmtPsYCVWXOsGqGWzbPpYrej1pCrv7uu12Er5XP/exec"; 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         let currentUser = null;
-        let logsData = []; // لتخزين البيانات للتصدير
+        let logsData = [];
 
         async function apiCall(data) {
             document.getElementById('loading').style.display = 'flex';
@@ -160,13 +183,13 @@
         async function login() {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
-            if(!u || !p) return showAlert('أكملي البيانات', 'error');
+            if(!u || !p) return showAlert('الرجاء إدخال البيانات', 'error');
             const res = await apiCall({ action: "login", username: u, password: p });
             if (res.success) {
                 currentUser = res.user;
                 localStorage.setItem('beauty_user', JSON.stringify(currentUser));
                 initApp();
-            } else { showAlert('بيانات خاطئة', 'error'); }
+            } else { showAlert('خطأ في اسم المستخدم أو كلمة المرور', 'error'); }
         }
 
         function logout() { localStorage.removeItem('beauty_user'); location.reload(); }
@@ -185,8 +208,18 @@
             const timeStamp = new Date().getTime();
             document.getElementById('loading').style.display = 'flex';
             try {
+                // Get Logs
                 const res = await fetch(`${API_URL}?action=getLogs&t=${timeStamp}`);
-                logsData = await res.json(); // حفظ البيانات للمتغير العام
+                logsData = await res.json();
+                
+                // Get Users (For Admin List)
+                let usersList = [];
+                if(currentUser.isAdmin) {
+                    const resUsers = await fetch(`${API_URL}?action=getUsers&t=${timeStamp}`);
+                    usersList = await resUsers.json();
+                    renderUsersList(usersList);
+                }
+
                 document.getElementById('loading').style.display = 'none';
 
                 if (currentUser.isAdmin) {
@@ -195,9 +228,9 @@
                             <td style="color:var(--accent-purple); font-weight:bold">${l.userName}</td>
                             <td>${l.date}</td>
                             <td>${l.checkIn}</td>
-                            <td><a href="${l.checkInLoc}" target="_blank" style="color:blue">موقع</a></td>
+                            <td><a href="${l.checkInLoc}" target="_blank" style="color:blue">الموقع</a></td>
                             <td>${l.checkOut}</td>
-                            <td>${l.checkOutLoc !== '-' ? `<a href="${l.checkOutLoc}" target="_blank" style="color:blue">موقع</a>` : '-'}</td>
+                            <td>${l.checkOutLoc !== '-' ? `<a href="${l.checkOutLoc}" target="_blank" style="color:blue">الموقع</a>` : '-'}</td>
                             <td style="color:#e67e22; font-weight:bold">${l.duration || '-'}</td>
                         </tr>
                     `).join('');
@@ -211,20 +244,26 @@
             } catch(e) { document.getElementById('loading').style.display = 'none'; }
         }
 
-        // --- وظائف التصدير (Excel & PDF) ---
+        function renderUsersList(users) {
+            const listDiv = document.getElementById('usersList');
+            listDiv.innerHTML = users.map(u => `
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:5px;">
+                    <span>${u.name} (${u.username})</span>
+                    <button onclick="deleteUser(${u.id})" class="delete-btn">حذف</button>
+                </div>
+            `).join('');
+        }
 
         function exportToExcel() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // دعم اللغة العربية
-            csvContent += "الموظفة,التاريخ,وقت الحضور,وقت الانصراف,مدة العمل\n";
-            
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Name,Date,Check In,Check Out,Duration\n";
             logsData.forEach(row => {
                 csvContent += `${row.userName},${row.date},${row.checkIn},${row.checkOut},${row.duration}\n`;
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "تقرير_الحضور.csv");
+            link.setAttribute("download", "Attendance_Report.csv");
             document.body.appendChild(link);
             link.click();
         }
@@ -232,25 +271,18 @@
         function exportToPDF() {
             const element = document.getElementById('reportTable');
             const header = document.getElementById('pdfHeader');
-            
-            // إظهار العنوان للطباعة فقط
             header.style.display = 'block';
-            document.getElementById('reportDate').innerText = 'تاريخ التقرير: ' + new Date().toLocaleDateString('ar-EG');
+            document.getElementById('reportDate').innerText = 'Date: ' + new Date().toLocaleDateString('en-US');
             
             const opt = {
                 margin: 0.5,
-                filename: 'تقرير_ساعات_العمل.pdf',
+                filename: 'Attendance_Report.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                header.style.display = 'none'; // إخفاء العنوان مرة أخرى
-            });
+            html2pdf().set(opt).from(element).save().then(() => { header.style.display = 'none'; });
         }
-
-        // ------------------------------------
 
         function updateStatus(logs) {
             const lastLog = logs[logs.length - 1];
@@ -267,7 +299,7 @@
         }
 
         function performAction(type) {
-            if (!navigator.geolocation) return showAlert('فعلي الموقع!', 'error');
+            if (!navigator.geolocation) return showAlert('يجب تفعيل الموقع أولاً!', 'error');
             const btnIn = document.getElementById('btnCheckIn');
             const btnOut = document.getElementById('btnCheckOut');
             btnIn.disabled = true; btnOut.disabled = true;
@@ -277,14 +309,21 @@
                 const res = await apiCall({ action: type, userId: currentUser.id, userName: currentUser.name, location: loc });
                 if (res.success) { showAlert(res.message, 'success'); setTimeout(() => fetchData(), 1500); }
                 else { showAlert(res.message, 'error'); fetchData(); }
-            }, () => { showAlert('مطلوب صلاحية الموقع!', 'error'); fetchData(); });
+            }, () => { showAlert('تم رفض صلاحية الموقع!', 'error'); fetchData(); });
         }
 
         async function addEmployee() {
             const n = document.getElementById('newName').value;
             const u = document.getElementById('newUser').value;
             const p = document.getElementById('newPass').value;
-            if(n && u && p) { await apiCall({action:"addUser", name:n, username:u, password:p}); showAlert('تمت الإضافة', 'success'); fetchData(); }
+            if(n && u && p) { await apiCall({action:"addUser", name:n, username:u, password:p}); showAlert('تمت الإضافة بنجاح', 'success'); fetchData(); }
+        }
+
+        async function deleteUser(id) {
+            if(confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
+                await apiCall({ action: "deleteUser", id: id });
+                fetchData();
+            }
         }
 
         function showAlert(msg, type) {
@@ -293,7 +332,7 @@
             setTimeout(() => box.style.display = 'none', 3000);
         }
 
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('ar-EG'), 1000);
+        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US'), 1000);
         const saved = localStorage.getItem('beauty_user'); if(saved) { currentUser = JSON.parse(saved); initApp(); }
     </script>
 </body>

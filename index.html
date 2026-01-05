@@ -3,169 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blanche - People Management</title>
+    <title>نظام حضور فريق الجمال</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #00c6ff, #9d00ff, #ff007c);
-            --accent-pink: #ff007c; --accent-purple: #9d00ff; --accent-blue: #00c6ff;
-            --bg-color: #f8f9fa; --card-bg: rgba(255, 255, 255, 0.98); --text-dark: #333;
+            --primary-color: #a4508b;
+            --secondary-color: #5f2c82;
+            --accent-pink: #ff6b81;
+            --accent-blue: #5352ed;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --text-dark: #2d3436;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
         
         body {
-            background-color: var(--bg-color); color: var(--text-dark);
-            min-height: 100vh; display: flex; justify-content: center; align-items: center;
-            background-image: radial-gradient(circle at 0% 0%, rgba(157, 0, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 100% 100%, rgba(255, 0, 124, 0.1) 0%, transparent 50%);
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            color: var(--text-dark);
         }
+
+        /* خلفية متحركة */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* فقاعات عائمة في الخلفية */
+        .circles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; }
+        .circles li { position: absolute; display: block; list-style: none; width: 20px; height: 20px; background: rgba(255, 255, 255, 0.2); animation: animate 25s linear infinite; bottom: -150px; border-radius: 50%; }
+        .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; }
+        .circles li:nth-child(2) { left: 10%; width: 20px; height: 20px; animation-delay: 2s; animation-duration: 12s; }
+        .circles li:nth-child(3) { left: 70%; width: 20px; height: 20px; animation-delay: 4s; }
+        .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
+        .circles li:nth-child(5) { left: 65%; width: 20px; height: 20px; animation-delay: 0s; }
+        @keyframes animate { 0%{ transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; } 100%{ transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; } }
 
         .app-container {
-            width: 95%; max-width: 1200px; background: var(--card-bg);
-            border-radius: 30px; padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08); position: relative;
-            border: 1px solid rgba(255,255,255,0.8);
+            width: 100%; max-width: 1000px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            animation: fadeIn Up 0.8s ease-out;
+            position: relative;
         }
 
-        .brand-logo { display: block; max-width: 120px; margin: 0 auto 20px auto; }
-        .gradient-text { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1, h2, h3 { font-weight: 700; color: var(--text-dark); }
+        .brand-logo { 
+            display: block; width: 100px; height: 100px; margin: 0 auto 10px auto; 
+            object-fit: cover; border-radius: 50%; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 3px solid white;
+            transition: transform 0.5s;
+        }
+        .brand-logo:hover { transform: rotate(10deg) scale(1.05); }
 
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 50px; border: 1px solid #ddd; text-align: center; font-size: 1rem; }
+        h1, h2, h3, h4 { color: var(--secondary-color); font-weight: 700; margin-bottom: 10px; }
+        .gradient-text { background: linear-gradient(to right, #a4508b, #5f2c82); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Inputs */
+        .input-group { position: relative; margin-bottom: 20px; }
+        input { 
+            width: 100%; padding: 15px 20px; padding-right: 45px;
+            border-radius: 50px; border: 2px solid #eee; 
+            background: rgba(255,255,255,0.9); outline: none; font-size: 1rem; transition: 0.3s; 
+        }
+        input:focus { border-color: var(--accent-pink); box-shadow: 0 0 10px rgba(255, 107, 129, 0.2); }
+        .input-icon { position: absolute; top: 50%; right: 15px; transform: translateY(-50%); color: #aaa; transition: 0.3s; }
+        input:focus + .input-icon { color: var(--accent-pink); }
+
+        /* Buttons */
         button {
-            width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 50px;
-            background: var(--primary-gradient); background-size: 200%; color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s;
-            font-size: 1rem;
+            width: 100%; padding: 14px; margin-top: 10px; border: none; border-radius: 50px;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: #fff; font-weight: 700; cursor: pointer; transition: all 0.3s;
+            font-size: 1.1rem; box-shadow: 0 5px 15px rgba(164, 80, 139, 0.3);
+            display: flex; justify-content: center; align-items: center; gap: 10px;
         }
-        button:hover { background-position: right; transform: translateY(-2px); }
-        button:disabled { background: #ccc; cursor: not-allowed; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(164, 80, 139, 0.4); }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        .check-in-btn { background: linear-gradient(45deg, #2ecc71, #00c6ff); }
-        .check-out-btn { background: linear-gradient(45deg, #ff007c, #e74c3c); }
-        
-        .export-btn-excel { background: #27ae60; width: auto; display: inline-block; padding: 8px 20px; font-size: 0.9rem; margin-left: 5px;}
-        .export-btn-pdf { background: #e74c3c; width: auto; display: inline-block; padding: 8px 20px; font-size: 0.9rem; }
-        .delete-btn { width: auto; padding: 5px 15px; background: #e74c3c; font-size: 0.8rem; margin: 0;}
+        .btn-check-in { background: linear-gradient(45deg, #11998e, #38ef7d); box-shadow: 0 5px 15px rgba(56, 239, 125, 0.3); }
+        .btn-check-out { background: linear-gradient(45deg, #cb2d3e, #ef473a); box-shadow: 0 5px 15px rgba(239, 71, 58, 0.3); }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary-color); color: var(--secondary-color); box-shadow: none; padding: 8px 20px; width: auto; font-size: 0.9rem; }
+        .btn-outline:hover { background: var(--secondary-color); color: white; }
 
-        /* تنسيق الجداول: العناوين عربية، المحتوى إنجليزي */
-        .table-container { margin-top: 20px; overflow-x: auto; background: #fff; border-radius: 15px; padding: 10px; border: 1px solid #eee; }
-        .data-table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        .data-table th { padding: 12px; background: #fdfdfd; color: var(--accent-purple); font-weight: bold; border-bottom: 2px solid #eee; text-align: center; }
+        /* Dashboard Styles */
+        .dashboard { display: none; animation: fadeIn 0.5s; }
         
-        /* هنا السحر: نجبر خلايا الجدول أن تكون من اليسار لليمين لضبط الأرقام الإنجليزية */
-        .data-table td { 
-            padding: 10px; 
-            text-align: center; 
-            border-bottom: 1px solid #f0f0f0; 
-            font-size: 0.95rem; 
-            direction: ltr; /* مهم جداً: يجعل الأرقام الإنجليزية تظهر بشكل صحيح */
-            font-family: monospace, 'Cairo'; /* خط مناسب للأرقام */
+        .status-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.9));
+            border-radius: 20px; padding: 30px; text-align: center; margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; overflow: hidden;
+            border: 1px solid white;
         }
+        .status-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 60%);
+            opacity: 0.5; pointer-events: none;
+        }
+
+        .clock { font-size: 3rem; font-weight: 800; color: var(--text-dark); font-family: 'Courier New', monospace; letter-spacing: 2px; margin: 15px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.05); direction: ltr; }
         
-        .dashboard { display: none; }
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
-        .spinner { border: 4px solid #eee; border-top: 4px solid var(--accent-purple); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        .alert { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); padding: 15px 30px; border-radius: 50px; color: white; z-index: 10000; display: none; font-weight: bold; }
-        .status-badge { display: inline-block; padding: 8px 20px; border-radius: 20px; margin: 10px 0; font-weight: bold; background: #eee; color: #555; }
+        .status-badge { 
+            display: inline-block; padding: 8px 25px; border-radius: 30px; 
+            font-weight: bold; font-size: 0.9rem; margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Tables */
+        .table-wrapper { 
+            margin-top: 20px; background: white; border-radius: 15px; 
+            overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+        }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #f8f9fa; color: var(--secondary-color); padding: 15px; font-weight: 700; text-align: center; }
+        td { padding: 12px; border-bottom: 1px solid #f1f1f1; text-align: center; direction: ltr; font-size: 0.95rem; color: #555; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fbfbfb; }
+
+        /* Loading */
+        .loading-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,255,255,0.95); z-index: 9999; 
+            display: none; justify-content: center; align-items: center; flex-direction: column; 
+        }
+        .heartbeat { font-size: 4rem; color: var(--accent-pink); animation: heartbeat 1.5s ease-in-out infinite both; }
+        @keyframes heartbeat { from { transform: scale(1); transform-origin: center center; animation-timing-function: ease-out; } 10% { transform: scale(0.91); animation-timing-function: ease-in; } 17% { transform: scale(0.98); animation-timing-function: ease-out; } 33% { transform: scale(0.87); animation-timing-function: ease-in; } 45% { transform: scale(1); animation-timing-function: ease-out; } }
+
+        /* Action Buttons Grid */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+
+        /* Admin Specific */
+        .user-list-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; background: #fff; border-radius: 10px; margin-bottom: 8px; border: 1px solid #eee; transition: 0.3s; 
+        }
+        .user-list-item:hover { transform: translateX(-5px); border-left: 4px solid var(--accent-pink); }
+        .delete-btn { width: 35px; height: 35px; padding: 0; background: #ff4757; margin: 0; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .app-container { padding: 1.5rem; width: 95%; }
+            .clock { font-size: 2.2rem; }
+            .action-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading" class="loading-overlay"><div class="spinner"></div><h3>لحظات من فضلك...</h3></div>
-    <div id="alertBox" class="alert"></div>
+    <ul class="circles">
+        <li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li>
+    </ul>
+
+    <div id="loading" class="loading-overlay">
+        <i class="fas fa-heart heartbeat"></i>
+        <h3 style="margin-top:20px; color:var(--text-dark)">جاري التحضير...</h3>
+    </div>
 
     <div class="app-container">
         
         <div id="loginSection" style="max-width: 400px; margin: 0 auto; text-align: center;">
             <img src="https://i.ibb.co/4Zdb1gm8/Untitled.png" alt="Logo" class="brand-logo">
-            <h1 class="gradient-text" style="margin-bottom: 10px;">أهلاً بكِ في عالم الجمال</h1>
-            <p style="color:#777; margin-bottom: 20px;">سجل دخولك لبدء يوم مشرق</p>
-            <input type="text" id="username" placeholder="اسم المستخدم">
-            <input type="password" id="password" placeholder="كلمة المرور">
-            <button onclick="login()">تسجيل الدخول</button>
+            <h1 class="gradient-text">بوابة فريق الجمال</h1>
+            <p style="color:#666; margin-bottom: 30px; font-size:0.95rem;">سجل دخولك لتبدأ رحلة الإبداع اليوم</p>
+            
+            <div class="input-group">
+                <input type="text" id="username" placeholder="اسم المستخدم">
+                <i class="fas fa-user input-icon"></i>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="كلمة المرور">
+                <i class="fas fa-lock input-icon"></i>
+            </div>
+            
+            <button onclick="login()">
+                تسجيل الدخول <i class="fas fa-arrow-left"></i>
+            </button>
         </div>
 
         <div id="employeeDashboard" class="dashboard">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>صباح الجمال، <span id="empName" style="color:var(--accent-purple)"></span> 🌸</h3>
-                <button onclick="logout()" style="width:auto; padding:8px 20px; background:#333; font-size:0.8rem">خروج</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div>
+                    <h2 style="margin:0; font-size:1.4rem;">صباح الجمال، <span id="empName" style="color:var(--accent-pink)"></span> 🌸</h2>
+                    <p style="font-size:0.85rem; color:#777;">نتمنى لك يوماً سعيداً ومليئاً بالإنجاز</p>
+                </div>
+                <button onclick="logout()" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</button>
             </div>
             
-            <div style="text-align:center; background:#fff; padding:30px; margin:20px 0; border-radius:20px; box-shadow:0 5px 20px rgba(0,0,0,0.03);">
+            <div class="status-card">
                 <div id="statusBadge" class="status-badge">جاري التحميل...</div>
-                <h1 id="clock" style="font-size:2.5rem; margin:15px 0; font-family:monospace; color:#333; direction:ltr;">00:00:00 AM</h1>
-                <p style="color:#777; margin-bottom: 15px;">نتمنى لك يوماً مليئاً بالإنجازات ✨</p>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                    <button id="btnCheckIn" class="check-in-btn" onclick="performAction('checkIn')">تسجيل حضور</button>
-                    <button id="btnCheckOut" class="check-out-btn" onclick="performAction('checkOut')">تسجيل انصراف</button>
+                <div id="clock" class="clock">00:00:00</div>
+                <p style="color:#888; font-size:0.9rem;">الوقت الحالي</p>
+                
+                <div class="action-grid">
+                    <button id="btnCheckIn" class="btn-check-in" onclick="performAction('checkIn')">
+                        <i class="fas fa-fingerprint"></i> تسجيل حضور
+                    </button>
+                    <button id="btnCheckOut" class="btn-check-out" onclick="performAction('checkOut')">
+                        <i class="fas fa-running"></i> تسجيل انصراف
+                    </button>
                 </div>
             </div>
 
-            <h3 style="margin-bottom:10px; color:var(--accent-purple)">سجلك الشخصي</h3>
-            <div class="table-container">
-                <table class="data-table">
-                    <thead><tr><th>التاريخ</th><th>وقت الحضور</th><th>وقت الانصراف</th><th>مدة العمل</th></tr></thead>
-                    <tbody id="myLogsTable"></tbody>
-                </table>
+            <h3 style="color:var(--secondary-color); font-size:1.2rem; margin-top:30px;"><i class="fas fa-history"></i> سجلك الشخصي</h3>
+            <div class="table-wrapper">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead><tr><th>التاريخ</th><th>وقت الحضور</th><th>وقت الانصراف</th><th>المدة</th></tr></thead>
+                        <tbody id="myLogsTable"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="adminDashboard" class="dashboard">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>لوحة الإدارة</h3>
-                <button onclick="logout()" style="width:auto; padding:8px 20px; background:#333;">خروج</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+                <h2><i class="fas fa-chart-line"></i> لوحة الإدارة</h2>
+                <button onclick="logout()" class="btn-outline"><i class="fas fa-sign-out-alt"></i></button>
             </div>
 
-            <div style="background:#fff; padding:15px; border-radius:20px; margin:15px 0;">
-                <h4 style="margin-bottom:10px; color:var(--accent-purple)">إضافة موظفة جديدة</h4>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="newName" placeholder="الاسم الكامل">
-                    <input type="text" id="newUser" placeholder="اسم المستخدم">
-                    <input type="text" id="newPass" placeholder="كلمة المرور">
-                    <button onclick="addEmployee()" style="width:100px; margin:10px 0;">إضافة</button>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                
+                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <h4 style="color:var(--secondary-color);"><i class="fas fa-user-plus"></i> إضافة موظفة</h4>
+                    <div class="input-group" style="margin-bottom:10px;"><input type="text" id="newName" placeholder="الاسم الكامل"></div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <input type="text" id="newUser" placeholder="اسم المستخدم" style="margin:0;">
+                        <input type="text" id="newPass" placeholder="كلمة المرور" style="margin:0;">
+                    </div>
+                    <button onclick="addEmployee()" style="font-size:0.9rem; margin-top:15px;">إضافة <i class="fas fa-plus"></i></button>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+                    <h4 style="color:var(--secondary-color);"><i class="fas fa-users"></i> الموظفات</h4>
+                    <div id="usersList" style="max-height: 180px; overflow-y: auto; padding-right:5px;"></div>
                 </div>
             </div>
 
-            <div style="background:#fff; padding:15px; border-radius:20px; margin:15px 0;">
-                <h4 style="margin-bottom:10px; color:var(--accent-purple)">قائمة الموظفين</h4>
-                <div id="usersList" style="max-height: 150px; overflow-y: auto;"></div>
+            <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button onclick="fetchData()" class="btn-outline" style="flex:1;"><i class="fas fa-sync"></i> تحديث</button>
+                <button onclick="exportToExcel()" style="flex:1; background:#21a563;"><i class="fas fa-file-excel"></i> Excel</button>
+                <button onclick="exportToPDF()" style="flex:1; background:#e74c3c;"><i class="fas fa-file-pdf"></i> PDF</button>
             </div>
 
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <button onclick="fetchData()" style="width:auto; background:var(--accent-blue)">تحديث البيانات</button>
-                <div>
-                    <button onclick="exportToExcel()" class="export-btn-excel"><i class="fas fa-file-excel"></i> ملف Excel</button>
-                    <button onclick="exportToPDF()" class="export-btn-pdf"><i class="fas fa-file-pdf"></i> ملف PDF</button>
-                </div>
-            </div>
-
-            <div class="table-container" id="reportTable">
-                <div style="text-align:center; padding:10px; display:none;" id="pdfHeader">
+            <div class="table-wrapper" id="reportTable">
+                <div style="text-align:center; padding:20px; display:none;" id="pdfHeader">
                     <img src="https://i.ibb.co/4Zdb1gm8/Untitled.png" style="width:80px;">
                     <h3>تقرير حضور فريق الجمال</h3>
                     <p id="reportDate"></p>
                 </div>
-                <table class="data-table">
-                    <thead><tr><th>الموظفة</th><th>التاريخ</th><th>وقت الحضور</th><th>الموقع</th><th>وقت الانصراف</th><th>الموقع</th><th>ساعات العمل</th></tr></thead>
-                    <tbody id="allLogsTable"></tbody>
-                </table>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead><tr><th>الاسم</th><th>التاريخ</th><th>حضور</th><th>الموقع</th><th>انصراف</th><th>الموقع</th><th>الساعات</th></tr></thead>
+                        <tbody id="allLogsTable"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // ضع الرابط الجديد الخاص بك هنا
+        // تأكد من وضع الرابط الخاص بك هنا كما في الكود السابق
         const API_URL = "https://script.google.com/macros/s/AKfycbwXeHT2kqeVUSuUXdrX23YwzF-zCsmtPsYCVWXOsGqGWzbPpYrej1pCrv7uu12Er5XP/exec"; 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         let currentUser = null;
         let logsData = [];
+
+        // تحسين دالة التنبيهات باستخدام SweetAlert2
+        function showAlert(msg, type) {
+            Swal.fire({
+                title: type === 'success' ? 'أحسنت!' : 'تنبيه!',
+                text: msg,
+                icon: type,
+                confirmButtonText: 'حسناً',
+                confirmButtonColor: 'var(--secondary-color)'
+            });
+        }
 
         async function apiCall(data) {
             document.getElementById('loading').style.display = 'flex';
@@ -176,23 +312,45 @@
                 return result;
             } catch (error) {
                 document.getElementById('loading').style.display = 'none';
-                return { success: false, message: "فشل الاتصال" };
+                return { success: false, message: "فشل الاتصال بالإنترنت" };
             }
         }
 
         async function login() {
             const u = document.getElementById('username').value.trim();
             const p = document.getElementById('password').value.trim();
-            if(!u || !p) return showAlert('الرجاء إدخال البيانات', 'error');
+            if(!u || !p) return showAlert('الرجاء إدخال البيانات كاملة', 'warning');
             const res = await apiCall({ action: "login", username: u, password: p });
             if (res.success) {
                 currentUser = res.user;
                 localStorage.setItem('beauty_user', JSON.stringify(currentUser));
-                initApp();
-            } else { showAlert('خطأ في اسم المستخدم أو كلمة المرور', 'error'); }
+                
+                // تأثير خروج انسيابي للوجين
+                const loginSec = document.getElementById('loginSection');
+                loginSec.style.opacity = '0';
+                setTimeout(() => {
+                    initApp();
+                }, 300);
+            } else { showAlert('اسم المستخدم أو كلمة المرور غير صحيحة', 'error'); }
         }
 
-        function logout() { localStorage.removeItem('beauty_user'); location.reload(); }
+        function logout() { 
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: "سيتم تسجيل خروجك من النظام",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'نعم، خروج',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('beauty_user'); 
+                    location.reload(); 
+                }
+            })
+        }
 
         function initApp() {
             document.getElementById('loginSection').style.display = 'none';
@@ -208,11 +366,9 @@
             const timeStamp = new Date().getTime();
             document.getElementById('loading').style.display = 'flex';
             try {
-                // Get Logs
                 const res = await fetch(`${API_URL}?action=getLogs&t=${timeStamp}`);
                 logsData = await res.json();
                 
-                // Get Users (For Admin List)
                 let usersList = [];
                 if(currentUser.isAdmin) {
                     const resUsers = await fetch(`${API_URL}?action=getUsers&t=${timeStamp}`);
@@ -225,19 +381,19 @@
                 if (currentUser.isAdmin) {
                     document.getElementById('allLogsTable').innerHTML = logsData.slice().reverse().map(l => `
                         <tr>
-                            <td style="color:var(--accent-purple); font-weight:bold">${l.userName}</td>
+                            <td style="color:var(--secondary-color); font-weight:bold">${l.userName}</td>
                             <td>${l.date}</td>
                             <td>${l.checkIn}</td>
-                            <td><a href="${l.checkInLoc}" target="_blank" style="color:blue">الموقع</a></td>
+                            <td><a href="${l.checkInLoc}" target="_blank" style="color:var(--accent-blue)"><i class="fas fa-map-marker-alt"></i></a></td>
                             <td>${l.checkOut}</td>
-                            <td>${l.checkOutLoc !== '-' ? `<a href="${l.checkOutLoc}" target="_blank" style="color:blue">الموقع</a>` : '-'}</td>
+                            <td>${l.checkOutLoc !== '-' ? `<a href="${l.checkOutLoc}" target="_blank" style="color:var(--accent-blue)"><i class="fas fa-map-marker-alt"></i></a>` : '-'}</td>
                             <td style="color:#e67e22; font-weight:bold">${l.duration || '-'}</td>
                         </tr>
                     `).join('');
                 } else {
                     const myLogs = logsData.filter(l => String(l.userId) === String(currentUser.id));
                     document.getElementById('myLogsTable').innerHTML = myLogs.slice().reverse().map(l => `
-                        <tr><td>${l.date}</td><td>${l.checkIn}</td><td>${l.checkOut}</td><td style="color:#e67e22">${l.duration || '-'}</td></tr>
+                        <tr><td>${l.date}</td><td>${l.checkIn}</td><td>${l.checkOut}</td><td style="color:#e67e22; font-weight:bold">${l.duration || '-'}</td></tr>
                     `).join('');
                     updateStatus(myLogs);
                 }
@@ -247,9 +403,15 @@
         function renderUsersList(users) {
             const listDiv = document.getElementById('usersList');
             listDiv.innerHTML = users.map(u => `
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:5px;">
-                    <span>${u.name} (${u.username})</span>
-                    <button onclick="deleteUser(${u.id})" class="delete-btn">حذف</button>
+                <div class="user-list-item">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:30px; height:30px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#777;"><i class="fas fa-user"></i></div>
+                        <div>
+                            <div style="font-weight:bold; font-size:0.9rem;">${u.name}</div>
+                            <div style="font-size:0.75rem; color:#888;">${u.username}</div>
+                        </div>
+                    </div>
+                    <button onclick="deleteUser(${u.id})" class="delete-btn"><i class="fas fa-trash-alt"></i></button>
                 </div>
             `).join('');
         }
@@ -263,7 +425,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Attendance_Report.csv");
+            link.setAttribute("download", "Beauty_Attendance_Report.csv");
             document.body.appendChild(link);
             link.click();
         }
@@ -275,8 +437,8 @@
             document.getElementById('reportDate').innerText = 'Date: ' + new Date().toLocaleDateString('en-US');
             
             const opt = {
-                margin: 0.5,
-                filename: 'Attendance_Report.pdf',
+                margin: 0.2,
+                filename: 'Beauty_Team_Report.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
@@ -289,51 +451,96 @@
             const btnIn = document.getElementById('btnCheckIn');
             const btnOut = document.getElementById('btnCheckOut');
             const badge = document.getElementById('statusBadge');
+            
             if (lastLog && lastLog.checkOut === "-") {
-                badge.innerHTML = "✨ متواجدة في العمل"; badge.style.background = "#d4edda"; badge.style.color = "#155724";
+                badge.innerHTML = '<i class="fas fa-circle" style="color:#2ecc71; font-size:0.7rem;"></i> متواجدة في العمل'; 
+                badge.style.background = "rgba(46, 204, 113, 0.15)"; 
+                badge.style.color = "#27ae60";
                 btnIn.disabled = true; btnOut.disabled = false;
             } else {
-                badge.innerHTML = "😴 خارج العمل"; badge.style.background = "#f8d7da"; badge.style.color = "#721c24";
+                badge.innerHTML = '<i class="fas fa-moon" style="color:#e74c3c; font-size:0.7rem;"></i> خارج العمل'; 
+                badge.style.background = "rgba(231, 76, 60, 0.15)"; 
+                badge.style.color = "#c0392b";
                 btnIn.disabled = false; btnOut.disabled = true;
             }
         }
 
         function performAction(type) {
-            if (!navigator.geolocation) return showAlert('يجب تفعيل الموقع أولاً!', 'error');
+            if (!navigator.geolocation) return showAlert('يجب تفعيل الموقع لتسجيل الحضور!', 'error');
             const btnIn = document.getElementById('btnCheckIn');
             const btnOut = document.getElementById('btnCheckOut');
+            
+            // تعطيل مؤقت
+            if(type === 'checkIn') btnIn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
+            else btnOut.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التسجيل...';
+            
             btnIn.disabled = true; btnOut.disabled = true;
 
             navigator.geolocation.getCurrentPosition(async (pos) => {
                 const loc = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
                 const res = await apiCall({ action: type, userId: currentUser.id, userName: currentUser.name, location: loc });
-                if (res.success) { showAlert(res.message, 'success'); setTimeout(() => fetchData(), 1500); }
-                else { showAlert(res.message, 'error'); fetchData(); }
-            }, () => { showAlert('تم رفض صلاحية الموقع!', 'error'); fetchData(); });
+                
+                // إعادة الأزرار لطبيعتها
+                btnIn.innerHTML = '<i class="fas fa-fingerprint"></i> تسجيل حضور';
+                btnOut.innerHTML = '<i class="fas fa-running"></i> تسجيل انصراف';
+                
+                if (res.success) { 
+                    Swal.fire({
+                        title: type === 'checkIn' ? 'أهلاً بكِ!' : 'رافقتكِ السلامة',
+                        text: res.message,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    setTimeout(() => fetchData(), 1500); 
+                } else { 
+                    showAlert(res.message, 'error'); fetchData(); 
+                }
+            }, () => { showAlert('تم رفض صلاحية الوصول للموقع!', 'error'); fetchData(); });
         }
 
         async function addEmployee() {
             const n = document.getElementById('newName').value;
             const u = document.getElementById('newUser').value;
             const p = document.getElementById('newPass').value;
-            if(n && u && p) { await apiCall({action:"addUser", name:n, username:u, password:p}); showAlert('تمت الإضافة بنجاح', 'success'); fetchData(); }
-        }
-
-        async function deleteUser(id) {
-            if(confirm('هل أنت متأكد من حذف هذا الموظف؟')) {
-                await apiCall({ action: "deleteUser", id: id });
-                fetchData();
+            if(n && u && p) { 
+                await apiCall({action:"addUser", name:n, username:u, password:p}); 
+                showAlert('تمت إضافة الموظفة بنجاح', 'success'); 
+                document.getElementById('newName').value = '';
+                document.getElementById('newUser').value = '';
+                document.getElementById('newPass').value = '';
+                fetchData(); 
+            } else {
+                showAlert('الرجاء ملء جميع الحقول', 'warning');
             }
         }
 
-        function showAlert(msg, type) {
-            const box = document.getElementById('alertBox'); box.innerText = msg; box.style.display = 'block';
-            box.style.background = type === 'success' ? 'linear-gradient(45deg, #2ecc71, #00c6ff)' : 'linear-gradient(45deg, #ff007c, #e74c3c)';
-            setTimeout(() => box.style.display = 'none', 3000);
+        async function deleteUser(id) {
+            Swal.fire({
+                title: 'حذف موظفة؟',
+                text: "لن يمكنك التراجع عن هذا الإجراء",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'نعم، حذف',
+                cancelButtonText: 'إلغاء'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await apiCall({ action: "deleteUser", id: id });
+                    fetchData();
+                    Swal.fire('تم الحذف!', 'تم حذف الموظفة بنجاح.', 'success');
+                }
+            })
         }
 
-        setInterval(() => document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US'), 1000);
-        const saved = localStorage.getItem('beauty_user'); if(saved) { currentUser = JSON.parse(saved); initApp(); }
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US');
+        }, 1000);
+        
+        const saved = localStorage.getItem('beauty_user'); 
+        if(saved) { currentUser = JSON.parse(saved); initApp(); }
     </script>
 </body>
 </html>
